@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>Example of the Authorization Code flow with Spotify</title>
+    <title>Spotify API</title>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <style type="text/css">
       #login, #loggedin {
@@ -30,7 +30,7 @@
         <div id="lyrics_container">
           
         </div>
-        <button class="btn btn-default" id="get_lyrics">Get Lyrics</button>
+        <button class="btn btn-default" id="get_lyrics">Double click to Get Lyrics</button>
       </div>
     </div>
 
@@ -61,11 +61,12 @@
         <dt>Refresh token</dt><dd class="text-overflow">{{refresh_token}}</dd>
       </dl>
     </script> -->
-
+  <div class="container">
       <h2>Lyrics</h2>
        <span id="lyrics">
          
        </span>
+     </div>
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
     <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
     <script>
@@ -161,6 +162,7 @@
               }
             }).success(function(data) {
             data = data.replace(/(?:\r\n|\r|\n)/g, '<br />');
+              $("#lyrics").html("");
                $("#lyrics").html(data);
             });
           }, false);
