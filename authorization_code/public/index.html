@@ -4,6 +4,9 @@
     <title>Spotify API</title>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <style type="text/css">
+      body {
+        padding-bottom: 20px;
+      }
       #login, #loggedin {
         display: none;
       }
@@ -19,7 +22,6 @@
   <body>
     <div class="container">
       <div id="login">
-        <h1>This is an example of the Authorization Code flow</h1>
         <a href="/login" class="btn btn-primary">Log in with Spotify</a>
       </div>
       <div id="loggedin">
@@ -30,7 +32,7 @@
         <div id="lyrics_container">
           
         </div>
-        <button class="btn btn-default" id="get_lyrics">Double click to Get Lyrics</button>
+        <button class="btn btn-default" id="get_lyrics">Click to Get Lyrics</button>
       </div>
     </div>
 
@@ -62,7 +64,9 @@
       </dl>
     </script> -->
   <div class="container">
-      <h2>Lyrics</h2>
+        <img id="album" src=""><br>
+       <span id="title"></span><br>
+       <span id="artist"></span><br>
        <span id="lyrics">
          
        </span>
@@ -74,10 +78,13 @@
 
             let artist;
             let title;
+            let current_song;
         /**
          * Obtains parameters from the hash of the URL
          * @return Object
          */
+
+
         function getHashParams() {
           var hashParams = {};
           var e, r = /([^&;=]+)=?([^&;]*)/g,
@@ -101,6 +108,92 @@
         var access_token = params.access_token,
             refresh_token = params.refresh_token,
             error = params.error;
+       
+
+         
+
+        setInterval( 
+          function () {
+           
+          
+             $.ajax({
+
+                  url: 'https://api.spotify.com/v1/me/player/currently-playing',
+                  method: 'GET',
+                  headers: {
+                      'Authorization': 'Bearer ' + access_token
+                  },
+                  success: function(r) {
+                     var playing;
+                     let is_changed;
+                     playing = r.item.name
+                     
+                     if(playing != current_song) {
+                        is_changed = true;               
+                     } else {
+                        is_changed = false;
+                     }
+                     console.log(current_song,playing);
+                     isChange(is_changed);
+                 }
+              });
+           
+          },5000);
+
+
+        function isChange(status) {
+            if(status) {
+               $.ajax({
+                  url: 'https://api.spotify.com/v1/me/player/currently-playing',
+                  method: 'GET',
+                  headers: {
+                      'Authorization': 'Bearer ' + access_token
+                    },
+                  success: function(r) {
+                  
+                   console.log(r);
+                    var song_details = {
+                      "title" : r.item.name,
+                      "artist" : r.item.artists[0].name,
+                      "album_art" : r.item.album.images[1]
+                    };
+
+                    current_song = r.item.name;
+
+                    $("#title").html("");
+                    $("#title").html(song_details.title);
+                    $("#artist").html("");
+                    $("#artist").html(song_details.artist);
+                    $("#album").attr("src","");
+                    $("#album").attr("src",song_details.album_art.url);
+                    $("#lyrics").html("<img src='./assets/loader.gif'/>");  
+                    console.log(song_details);
+                    if (song_details.title.indexOf("- Remastered") >= 0) {
+                      song_details.title = song_details.title.replace("- Remastered","");
+                    }
+
+                      $.ajax({
+                        url: '/fetch-lyrics',
+                        data: {
+                          'title' : song_details.title,
+                          'artist' : song_details.artist
+                        }
+                      }).success(function(a) {
+                      a = a.replace(/(?:\r\n|\r|\n)/g, '<br />');
+                        $("#lyrics").html("");
+                         $("#lyrics").html(a);
+                      }).error(function(b){
+                        $("#lyrics").html("");
+                         $("#lyrics").html("Lyrics Not Found");
+                      });
+
+                  },
+                  error: function(e) {
+                    return false;
+                  }
+                });
+            }
+        }
 
         if (error) {
           alert('There was an error during the authentication');
@@ -125,48 +218,67 @@
                 }
             });
 
-            $('#get_lyrics').click(function(){
-                $.ajax({
+            
+            $("#get_lyrics").click(function() {
+              $.ajax({
                   url: 'https://api.spotify.com/v1/me/player/currently-playing',
                   method: 'GET',
                   headers: {
                       'Authorization': 'Bearer ' + access_token
                     },
                   success: function(r) {
-                   
-                    artist = r.item.artists[0].name;
-                    title = r.item.name;
-                    console.log(artist,title);
+                  
+                   console.log(r);
+                    var song_details = {
+                      "title" : r.item.name,
+                      "artist" : r.item.artists[0].name,
+                      "album_art" : r.item.album.images[1]
+                    };
+
+                    current_song = r.item.name;
+
+                    $("#title").html("");
+                    $("#title").html(song_details.title);
+                    $("#artist").html("");
+                    $("#artist").html(song_details.artist);
+                    $("#album").attr("src","");
+                    $("#album").attr("src",song_details.album_art.url);
+                    $("#lyrics").html("<img src='./assets/loader.gif'/>");  
+                    console.log(song_details);
+                    if (song_details.title.indexOf("- Remastered") >= 0) {
+                      song_details.title = song_details.title.replace("- Remastered","");
+                    }
+
+                      $.ajax({
+                        url: '/fetch-lyrics',
+                        data: {
+                          'title' : song_details.title,
+                          'artist' : song_details.artist
+                        }
+                      }).success(function(a) {
+                      a = a.replace(/(?:\r\n|\r|\n)/g, '<br />');
+                        $("#lyrics").html("");
+                         $("#lyrics").html(a);
+                      }).error(function(b){
+                        $("#lyrics").html("");
+                         $("#lyrics").html("Lyrics Not Found");
+                      });
+
                   },
                   error: function(e) {
-                    console.log();
+                    return false;
                   }
                 });
             });
-          
-
-
           } else {
               // render initial screen
               $('#login').show();
               $('#loggedin').hide();
           }
 
-          document.getElementById('get_lyrics').addEventListener('click', function() {
-            $.ajax({
-              url: '/fetch-lyrics',
-              data: {
-                // 'refresh_token': refresh_token
-                'title' : title,
-                'artist' : artist
-              }
-            }).success(function(data) {
-            data = data.replace(/(?:\r\n|\r|\n)/g, '<br />');
-              $("#lyrics").html("");
-               $("#lyrics").html(data);
-            });
-          }, false);
+ 
 
+          
         
         }
 

@@ -16,6 +16,7 @@ var l = require("lyric-get");
 
 var client_id = '29a2e50bd8a84eb2ba73bc6399306dea'; // Your client id
 var client_secret = 'f3b84773477d434b901819272d4836ea'; // Your secret
+// var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
 var redirect_uri = 'https://spotify-with-lyrics.herokuapp.com/callback'; // Your redirect uri
 
 /**
@@ -149,7 +150,6 @@ app.get('/fetch-lyrics', function(req, res) {
   // requesting access token from refresh token
   let artist = req.query.artist;
   let title = req.query.title;
-  console.log(artist,title)
   // var authOptions = {
   //   url: 'https://accounts.spotify.com/api/token',
   //   headers: { 'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64')) },
@@ -183,6 +183,6 @@ app.get('/fetch-lyrics', function(req, res) {
     }
 });
 });
-var port = process.env.PORT || 8080;
+var port = process.env.PORT || 8888;
 console.log('Listening on 8888');
 app.listen(port);
