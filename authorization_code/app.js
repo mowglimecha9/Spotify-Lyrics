@@ -16,7 +16,6 @@ var l = require("lyric-get");
 
 var client_id = '29a2e50bd8a84eb2ba73bc6399306dea'; // Your client id
 var client_secret = 'f3b84773477d434b901819272d4836ea'; // Your secret
-// var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
 var redirect_uri = 'https://spotify-with-lyrics.herokuapp.com/callback'; // Your redirect uri
 
 /**

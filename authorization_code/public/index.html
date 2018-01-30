@@ -32,7 +32,7 @@
         <div id="lyrics_container">
           
         </div>
-        <button class="btn btn-default" id="get_lyrics">Click to Get Lyrics</button>
+        <button class="btn btn-default" id="get_lyrics">Click to Start</button>
       </div>
     </div>
 
@@ -260,8 +260,7 @@
                         $("#lyrics").html("");
                          $("#lyrics").html(a);
                       }).error(function(b){
-                        $("#lyrics").html("");
-                         $("#lyrics").html("Lyrics Not Found");
+                        console.log("Lyrics not found");
                       });
 
                   },
