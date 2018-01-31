@@ -12,12 +12,12 @@ var request = require('request'); // "Request" library
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 var l = require("lyric-get");
+require('dotenv').config()
 
 
-var client_id = '29a2e50bd8a84eb2ba73bc6399306dea'; // Your client id
-var client_secret = 'f3b84773477d434b901819272d4836ea'; // Your secret
-var redirect_uri = 'https://spotify-with-lyrics.herokuapp.com/callback'; // Your redirect uri
-
+var client_id = process.env.client_id; // Your client id
+var client_secret = process.env.client_secret; // Your secret
+var redirect_uri = process.env.redirect_uri;
 /**
  * Generates a random string containing numbers and letters
  * @param  {number} length The length of the string
@@ -149,35 +149,13 @@ app.get('/fetch-lyrics', function(req, res) {
   // requesting access token from refresh token
   let artist = req.query.artist;
   let title = req.query.title;
-  // var authOptions = {
-  //   url: 'https://accounts.spotify.com/api/token',
-  //   headers: { 'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64')) },
-  //   form: {
-  //     grant_type: 'refresh_token',
-  //     refresh_token: refresh_token
-  //   },
-  //   json: true
-  // };
-
-  // request.post(authOptions, function(error, response, body) {
-  //   if (!error && response.statusCode === 200) {
-      // var access_token = body.access_token;
-  //     res.send({
-  //       'access_token': access_token
-  //     });
-  //   }
-  // });
 
   l.get(artist, title, function(err, a){
     if(err){
         console.log(err);
     }
     else{
-        // console.log(res);
-        //  console.log(res);
-        // app.post('/',function(req,res){
-        //   app.send({"lyric":res})
-        // });
+    
         res.json(a);
     }
 });
