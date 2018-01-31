@@ -17,7 +17,7 @@ require('dotenv').config()
 
 var client_id = process.env.client_id; // Your client id
 var client_secret = process.env.client_secret; // Your secret
-var redirect_uri = process.env.redirect_uri;
+var redirect_uri = process.env.REDIRECT;
 /**
  * Generates a random string containing numbers and letters
  * @param  {number} length The length of the string
