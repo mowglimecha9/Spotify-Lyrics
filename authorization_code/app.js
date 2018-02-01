@@ -15,8 +15,8 @@ var l = require("lyric-get");
 require('dotenv').config()
 
 
-var client_id = process.env.client_id; // Your client id
-var client_secret = process.env.client_secret; // Your secret
+var client_id = process.env.CLIENT_ID; // Your client id
+var client_secret = process.env.CLIENT_SECRET; // Your secret
 var redirect_uri = process.env.REDIRECT;
 /**
  * Generates a random string containing numbers and letters
