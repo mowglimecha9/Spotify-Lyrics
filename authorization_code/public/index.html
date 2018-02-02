@@ -1,8 +1,9 @@
 <!doctype html>
 <html>
   <head>
-    <title>Spotify API</title>
+    <title>Spotify API by Mowgli Mecha</title>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <style type="text/css">
       body {
         padding-bottom: 20px;
@@ -84,6 +85,43 @@
         left: 0;
         background-color: rgba(0,0,0,0.5);
       }
+      .mm-controls {
+        height: 80px;
+        margin-top: 15px;
+        width: 300px;
+      }
+
+      .mm-controls ul {
+        list-style:none;
+        margin:0;
+        padding:0;
+        height: 100%;
+      }
+      .mm-controls ul li {
+        width: 33%;
+        float: left;
+        height: 100%;
+        text-align: center;
+      }
+
+      
+      .mm-controls ul li  span {
+        text-decoration: none;
+        text-align: center;
+        color: #FFF;
+        cursor: pointer;
+        transition:all 0.3s linear;
+      }
+
+      .mm-controls ul li  span:hover {
+ 
+        color: #d2d0d0
+      
+      }
+      
+      .mm-controls ul li  span  i{
+        font-size: 28px;
+      }
 
     </style>
   </head>
@@ -102,7 +140,16 @@
             <img id="album" src="">
             <span class="mm-text" id="title"></span>
             <span class="mm-text" id="artist"></span>
-            <button class="btn btn-default" id="get_lyrics">Click to Connect</button> 
+            
+            <div class="mm-controls">
+                <ul>
+                  <li><span href="#" class="control-prev"><i class="fa fa-step-backward"></i></span></li>
+                  <li><span href="#" class="control-play" data-state="paused"><i class="fa fa-play"></i></span></li>
+                  <li><span href="#" class="control-next"><i class="fa fa-step-forward"></i></span></li>
+                </ul>
+            </div>
+            
+            <button class="btn btn-default" id="get_lyrics">Click to Start</button> 
         </div>
         <div class="mm-half mm-lyric-padding" style="overflow-y: scroll;">
             <span id="lyrics">
@@ -181,7 +228,7 @@
                  }
               });
            
-          },5000);
+          },3000);
 
 
         function isChange(status) {
@@ -193,7 +240,8 @@
                       'Authorization': 'Bearer ' + access_token
                     },
                   success: function(r) {
-                  
+                 
+
                     var song_details = {
                       "title" : r.item.name,
                       "artist" : r.item.artists[0].name,
@@ -259,7 +307,75 @@
                 }
             });
 
+              
+            $('.control-play').click(function(e){
+                e.preventDefault();
+                var state = $(this).attr("data-state");
+                var playBtn = $(this);
+                if (state == "playing") {
+                    $.ajax({
+                      url: 'https://api.spotify.com/v1/me/player/pause',
+                      method: 'PUT',
+                      headers: {
+                          'Authorization': 'Bearer ' + access_token
+                        },success:function() {
+                            playBtn.find('i').removeClass('fa-pause');
+                            playBtn.find('i').addClass('fa-play');
+                            playBtn.attr("data-state","paused");
+                        }
+                    });
+
+                } else {
+
+                   $.ajax({
+                      url: 'https://api.spotify.com/v1/me/player/play',
+                      method: 'PUT',
+                      headers: {
+                          'Authorization': 'Bearer ' + access_token
+                        },success:function() {
+                              playBtn.find('i').removeClass('fa-play');
+                              playBtn.find('i').addClass('fa-pause');
+                              playBtn.attr("data-state","playing");
+                        }
+                    });
+
+
+                 
+                }
+                
+            });
+
+            $('.control-next').click(function(e){
+              
+                $.ajax({
+                  url: 'https://api.spotify.com/v1/me/player/next',
+                  method: 'POST',
+                  headers: {
+                      'Authorization': 'Bearer ' + access_token
+                    },success:function() {
+                        
+                    }
+                });
+
             
+            });
+
+            $('.control-prev').click(function(e){
+              
+                $.ajax({
+                  url: 'https://api.spotify.com/v1/me/player/previous',
+                  method: 'POST',
+                  headers: {
+                      'Authorization': 'Bearer ' + access_token
+                    },success:function() {
+                        
+                    }
+                });
+
+            
+            });
+
+
             $("#get_lyrics").click(function() {
               $.ajax({
                   url: 'https://api.spotify.com/v1/me/player/currently-playing',
@@ -269,12 +385,20 @@
                     },
                   success: function(r) {
                   
+                    var is_playing = r.is_playing;
+                    var playBtn = $('.control-play');
+                    if (is_playing) {
+                      playBtn.find('i').removeClass('fa-play');
+                      playBtn.find('i').addClass('fa-pause');
+                      playBtn.attr("data-state","playing");
+                    }
+
                     var song_details = {
                       "title" : r.item.name,
                       "artist" : r.item.artists[0].name,
                       "album_art" : r.item.album.images[1]
                     };
-
+                    console.log(r);
                     current_song = r.item.name;
 
                     $('.blur_bg').css('background-image','url("'+song_details.album_art.url +'")');
@@ -313,7 +437,7 @@
                       }).success(function(a) {
                       a = a.replace(/(?:\r\n|\r|\n)/g, '<br />');
                         $("#lyrics").html("");
-                         $("#lyrics").html(a);
+                         $("#lyrics").html(a + '<br>');
                       })
 
                   },
