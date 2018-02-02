@@ -129,7 +129,7 @@
   <body>
     
       <div id="login">
-        <a href="/login" class="btn mm-center-btn btn-primary">Please click to Log in with Spotify</a>
+        <a href="/login" class="btn mm-center-btn btn-primary">Please click to Login with Spotify</a>
       </div>
       <div id="loggedin">
         <div class="blur_bg">
@@ -144,7 +144,7 @@
             <div class="mm-controls">
                 <ul>
                   <li><span href="#" class="control-prev"><i class="fa fa-step-backward"></i></span></li>
-                  <li><span href="#" class="control-play" data-state="paused"><i class="fa fa-play"></i></span></li>
+                  <li><span href="#" class="control-play" data-state="playing"><i class="fa fa-play"></i></span></li>
                   <li><span href="#" class="control-next"><i class="fa fa-step-forward"></i></span></li>
                 </ul>
             </div>
@@ -163,11 +163,7 @@
     <script>
       (function() {
 
-            let artist;
-            let title;
-            let current_song;
-     
-
+       
         function getHashParams() {
           var hashParams = {};
           var e, r = /([^&;=]+)=?([^&;]*)/g,
@@ -178,15 +174,112 @@
           return hashParams;
         }
 
+        let artist;
+        let title;
+        let current_song;
+        var params = getHashParams();
+        var access_token = params.access_token,
+        refresh_token = params.refresh_token,
+        error = params.error;
+        //var playBtn = $('.control-play');
+        
         
 
-        var params = getHashParams();
 
-        var access_token = params.access_token,
-            refresh_token = params.refresh_token,
-            error = params.error;
-       
+        function changeBG(image) {
+          $('.blur_bg').css('background-image','url("'+image +'")');
+        }
 
+        function isSongPlaying(state) {
+           var playBtn = $('.control-play');
+            if(state == "playing") {
+              playBtn.find('i').removeClass('fa-play');
+              playBtn.find('i').addClass('fa-pause');
+              playBtn.attr("data-state","playing");
+            } else {
+              playBtn.find('i').removeClass('fa-pause');
+              playBtn.find('i').addClass('fa-play');
+              playBtn.attr("data-state","paused");
+            }
+        }
+
+        function cleanSongTitle(song) {
+          var musicTitle;
+          var tagged = song.split(" - ");
+              if (tagged.length > 0) {
+                musicTitle = tagged[0];
+              } else {
+                musicTitle = song_details.title.split;
+              }
+            return musicTitle;
+        }
+
+        function getLyrics(songTitle,songArtist) {
+           $.ajax({
+            url: '/fetch-lyrics',
+            data: {
+              'title' : songTitle,
+              'artist' : songArtist
+            }
+          }).success(function(a) {
+            a = a.replace(/(?:\r\n|\r|\n)/g, '<br />');
+            $("#lyrics").html("");
+             $("#lyrics").html(a + '<br>');
+            })
+        }
+
+        function getSong(lyrics) {
+          if (lyrics === undefined) lyrics = false;
+          $.ajax({
+            url: 'https://api.spotify.com/v1/me/player/currently-playing',
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + access_token
+              },
+            success: function(r) {
+                 $("#get_lyrics").text("Wrong Lyrics? Click to Refresh");
+
+                var is_playing_state =  r.is_playing;
+                var  state;
+                if(is_playing_state) {
+                  state = "playing";
+                } else {
+                  state = "paused";
+                }
+                isSongPlaying(state);
+
+                current_song = r.item.name;
+
+                var song_details = {
+                      "title" : r.item.name,
+                      "artist" : r.item.artists[0].name,
+                      "album_art" : r.item.album.images[1]
+                };
+                changeBG(song_details.album_art.url);
+
+                $("#title").html("");
+                $("#title").html(song_details.title);
+                $("#artist").html("");
+                $("#artist").html(song_details.artist);
+                $("#album").attr("src","");
+                $("#album").attr("src",song_details.album_art.url);
+                $("#lyrics").html("<img src='./assets/load.svg'/>"); 
+
+                var musicTitle = cleanSongTitle(song_details.title);
+
+                if(lyrics == true) {
+                  getLyrics(musicTitle,song_details.artist);
+                }
+            },
+            error: function(e) {
+                    return false;
+                  }
+          });
+
+
+        }
+
+        //TOKEN REFRESH 1 hour -1 min ++
          
         setInterval(
           function () {
@@ -202,12 +295,11 @@
           }
         ,3500000 ); //refresh every 1 hour
 
+        //Check if song is changed without user interaction
+
         setInterval( 
           function () {
-           
-          
              $.ajax({
-
                   url: 'https://api.spotify.com/v1/me/player/currently-playing',
                   method: 'GET',
                   headers: {
@@ -216,80 +308,30 @@
                   success: function(r) {
                      var playing;
                      let is_changed;
-                     playing = r.item.name
+                     var showLyrics;
+                     if(r.is_playing) {
+                        playing = r.item.name
                      
-                     if(playing != current_song) {
-                        is_changed = true;               
+                         if(playing != current_song) {
+                            is_changed = true;
+                            showLyrics = true;
+                            getSong(showLyrics);               
+                         } else {
+                            is_changed = false;
+                                    
+
+                         }
+                        
                      } else {
-                        is_changed = false;
-                     }
-                     console.log(current_song,playing);
-                     isChange(is_changed);
+                        var a = "paused";
+                        // showLyrics = true;
+                        // getSong(showLyrics);      
+                        isSongPlaying(a);
+                     }   
                  }
               });
            
-          },3000);
-
-
-        function isChange(status) {
-            if(status) {
-               $.ajax({
-                  url: 'https://api.spotify.com/v1/me/player/currently-playing',
-                  method: 'GET',
-                  headers: {
-                      'Authorization': 'Bearer ' + access_token
-                    },
-                  success: function(r) {
-                 
-
-                    var song_details = {
-                      "title" : r.item.name,
-                      "artist" : r.item.artists[0].name,
-                      "album_art" : r.item.album.images[1]
-                    };
-
-                    current_song = r.item.name;
-
-                     $('.blur_bg').css('background-image','url("'+ song_details.album_art.url +'")');
-
-
-                    $("#title").html("");
-                    $("#title").html(song_details.title);
-                    $("#artist").html("");
-                    $("#artist").html(song_details.artist);
-                    $("#album").attr("src","");
-                    $("#album").attr("src",song_details.album_art.url);
-                    $("#lyrics").html("<img src='./assets/loader.gif'/>");  
-                     //get title only without tags
-                    let musicTitle;
-                    var tagged = song_details.title.split(" - ");
-                    if (tagged.length > 0) {
-                      musicTitle = tagged[0];
-                    } else {
-                      musicTitle = song_details.title.split;
-                    }
-
-
-
-                      $.ajax({
-                        url: '/fetch-lyrics',
-                        data: {
-                          'title' : musicTitle,
-                          'artist' : song_details.artist
-                        }
-                      }).success(function(a) {
-                      a = a.replace(/(?:\r\n|\r|\n)/g, '<br />');
-                        $("#lyrics").html("");
-                         $("#lyrics").html(a);
-                      })
-
-                  },
-                  error: function(e) {
-                    return false;
-                  }
-                });
-            }
-        }
+          },2500);
 
         if (error) {
           alert('There was an error during the authentication');
@@ -338,9 +380,6 @@
                               playBtn.attr("data-state","playing");
                         }
                     });
-
-
-                 
                 }
                 
             });
@@ -377,85 +416,15 @@
 
 
             $("#get_lyrics").click(function() {
-              $.ajax({
-                  url: 'https://api.spotify.com/v1/me/player/currently-playing',
-                  method: 'GET',
-                  headers: {
-                      'Authorization': 'Bearer ' + access_token
-                    },
-                  success: function(r) {
-                  
-                    var is_playing = r.is_playing;
-                    var playBtn = $('.control-play');
-                    if (is_playing) {
-                      playBtn.find('i').removeClass('fa-play');
-                      playBtn.find('i').addClass('fa-pause');
-                      playBtn.attr("data-state","playing");
-                    }
+              var getSongLyrics = true;
 
-                    var song_details = {
-                      "title" : r.item.name,
-                      "artist" : r.item.artists[0].name,
-                      "album_art" : r.item.album.images[1]
-                    };
-                    console.log(r);
-                    current_song = r.item.name;
-
-                    $('.blur_bg').css('background-image','url("'+song_details.album_art.url +'")');
-
-                  
-
-                    $("#title").html("");
-                    $("#title").html(song_details.title);
-                    $("#artist").html("");
-                    $("#artist").html(song_details.artist);
-                    $("#album").attr("src","");
-                    $("#album").attr("src",song_details.album_art.url);
-                    $("#lyrics").html("<img src='./assets/loader.gif'/>");  
-                    // if (song_details.title.indexOf("- Remastered") >= 0) {
-                    //   song_details.title = song_details.title.replace("- Remastered","");
-                    // }
-
-                    //get title only without tags
-                    let musicTitle;
-                    var tagged = song_details.title.split(" - ");
-                    if (tagged.length > 0) {
-                      musicTitle = tagged[0];
-                    } else {
-                      musicTitle = song_details.title.split;
-                    }
-
-
-
-
-                      $.ajax({
-                        url: '/fetch-lyrics',
-                        data: {
-                          'title' : musicTitle,
-                          'artist' : song_details.artist
-                        }
-                      }).success(function(a) {
-                      a = a.replace(/(?:\r\n|\r|\n)/g, '<br />');
-                        $("#lyrics").html("");
-                         $("#lyrics").html(a + '<br>');
-                      })
-
-                  },
-                  error: function(e) {
-                    return false;
-                  }
-                });
+              getSong(getSongLyrics);
             });
           } else {
               // render initial screen
               $('#login').show();
               $('#loggedin').hide();
-          }
-
- 
-
-          
-        
+          }        
         }
 
       })();
