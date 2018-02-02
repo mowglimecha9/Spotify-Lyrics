@@ -212,24 +212,28 @@
                     $("#album").attr("src","");
                     $("#album").attr("src",song_details.album_art.url);
                     $("#lyrics").html("<img src='./assets/loader.gif'/>");  
-                    if (song_details.title.indexOf("- Remastered") >= 0) {
-                      song_details.title = song_details.title.replace("- Remastered","");
+                     //get title only without tags
+                    let musicTitle;
+                    var tagged = song_details.title.split(" - ");
+                    if (tagged.length > 0) {
+                      musicTitle = tagged[0];
+                    } else {
+                      musicTitle = song_details.title.split;
                     }
+
+
 
                       $.ajax({
                         url: '/fetch-lyrics',
                         data: {
-                          'title' : song_details.title,
+                          'title' : musicTitle,
                           'artist' : song_details.artist
                         }
                       }).success(function(a) {
                       a = a.replace(/(?:\r\n|\r|\n)/g, '<br />');
                         $("#lyrics").html("");
                          $("#lyrics").html(a);
-                      }).error(function(b){
-                        $("#lyrics").html("");
-                         $("#lyrics").html("Lyrics Not Found");
-                      });
+                      })
 
                   },
                   error: function(e) {
@@ -284,14 +288,26 @@
                     $("#album").attr("src","");
                     $("#album").attr("src",song_details.album_art.url);
                     $("#lyrics").html("<img src='./assets/loader.gif'/>");  
-                    if (song_details.title.indexOf("- Remastered") >= 0) {
-                      song_details.title = song_details.title.replace("- Remastered","");
+                    // if (song_details.title.indexOf("- Remastered") >= 0) {
+                    //   song_details.title = song_details.title.replace("- Remastered","");
+                    // }
+
+                    //get title only without tags
+                    let musicTitle;
+                    var tagged = song_details.title.split(" - ");
+                    if (tagged.length > 0) {
+                      musicTitle = tagged[0];
+                    } else {
+                      musicTitle = song_details.title.split;
                     }
+
+
+
 
                       $.ajax({
                         url: '/fetch-lyrics',
                         data: {
-                          'title' : song_details.title,
+                          'title' : musicTitle,
                           'artist' : song_details.artist
                         }
                       }).success(function(a) {
