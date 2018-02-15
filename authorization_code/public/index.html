@@ -2,6 +2,11 @@
 <html>
   <head>
     <title>Spotify API by Mowgli Mecha</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="Lyricsify is an app that I created using NodeJS and Spotify API. ">
+    <meta name="keywords" content="Spotify Lyricsify Lyrics spotify with lyrics singalong">
+    <meta name="author" content="MOWGLI MECHA">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <style type="text/css">
@@ -56,7 +61,7 @@
         color:#fff;
         font-size: 16px;
         display: block;
-        margin:5px 0;
+        margin:10px 0;
       }
       #lyrics {
         height: 73%;
@@ -123,12 +128,106 @@
         font-size: 28px;
       }
 
+      .logo {
+        position: absolute;
+        top: 35%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+      }
+
+      @media only screen and (max-device-width: 768px) {
+        .mm-center-btn {
+          position: absolute;
+          top:50%;
+          left:50%;
+          transform: translate(-50%,-50%);
+          width: auto;
+          padding:20px;
+          font-size: 14px;
+        }
+
+
+      .logo {
+          width: 80%;
+      }
+
+          .mm-container {
+            width: 100%;
+            flex-direction: column;
+          }
+          
+
+          .mm-half {
+            width: 100%;
+            display: block;
+            padding:20px 0;
+          }
+
+          #album {
+            display: block;
+            margin: auto;
+            width: 150px;
+          }
+
+          .mm-lyric-padding {
+            padding:0;
+          }
+
+          #lyrics {
+            width: 79%;
+            height :100%;
+            display: block;
+            margin: auto;
+            text-align: center;
+            font-size: 14px;
+          }
+
+          .load-center {
+            width: 200px;
+            margin: auto;
+            display: block;
+          }
+
+          .mm-text {
+            margin:5px auto;
+            display: block;
+            text-align: center;
+          }
+
+          .mm-controls {
+            display: block;
+            margin:auto;
+          }
+
+          #get_lyrics {
+            margin:auto;
+            display: block;
+          }
+
+                }
+    
+        .fixed_cred {
+          position: absolute;
+          top: 0;
+          right:0;
+          opacity: 0.2;
+          font-size: 12px;
+          z-index: 2;
+
+          color: #FFF;
+        }
+
+        .fixed_cred a {
+          color: #fff;
+        }
+
     </style>
   </head>
 
   <body>
-    
+      <p class="fixed_cred">by: <a target="_blank" href="http://mowglimecha.com/">Mowgli Mecha </p>
       <div id="login">
+        <img class="logo" src="./assets/logo.png"/>
         <a href="/login" class="btn mm-center-btn btn-primary">Please click to Login with Spotify</a>
       </div>
       <div id="loggedin">
@@ -263,7 +362,7 @@
                 $("#artist").html(song_details.artist);
                 $("#album").attr("src","");
                 $("#album").attr("src",song_details.album_art.url);
-                $("#lyrics").html("<img src='./assets/load.svg'/>"); 
+                $("#lyrics").html("<img class='loadcenter' src='./assets/load.svg'/>"); 
 
                 var musicTitle = cleanSongTitle(song_details.title);
 
