@@ -221,11 +221,24 @@
         .fixed_cred a {
           color: #fff;
         }
+        
+        .user_img {
+          position: absolute;
+          top: 2%;
+          z-index: 213;
+          right: 2%;
+          opacity: 0.8;
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+        }
 
     </style>
   </head>
 
   <body>
+      
+      <img class="user_img">
       <p class="fixed_cred">by: <a target="_blank" href="http://mowglimecha.com/">Mowgli Mecha </p>
       <div id="login">
         <img class="logo" src="./assets/logo.png"/>
@@ -272,6 +285,7 @@
              hashParams[e[1]] = decodeURIComponent(e[2]);
           }
           return hashParams;
+          console.log(hashParams);
         }
 
         let artist;
@@ -355,6 +369,9 @@
                       "artist" : r.item.artists[0].name,
                       "album_art" : r.item.album.images[1]
                 };
+
+                // var pp = localStorage.getItem('img_url');
+                // console.log(user_image);
                 changeBG(song_details.album_art.url);
 
                 $("#title").html("");
@@ -362,6 +379,8 @@
                 $("#artist").html("");
                 $("#artist").html(song_details.artist);
                 $("#album").attr("src","");
+                // $(".user_img").attr("src","");
+                // $(".user_img").attr("src",pp);
                 $("#album").attr("src",song_details.album_art.url);
                 $("#lyrics").html("<img class='loadcenter' src='./assets/load.svg'/>"); 
 
@@ -376,7 +395,19 @@
                   }
           });
 
-
+           $.ajax({
+            url: 'https://api.spotify.com/v1/me/',
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + access_token
+              },
+            success: function(r) {
+              var img = r.images[0].url;
+              $(".user_img").attr("src","");
+              $(".user_img").attr("src",img);
+              console.log(r.images[0].url);
+            }
+          });
         }
 
         //TOKEN REFRESH 1 hour -1 min ++

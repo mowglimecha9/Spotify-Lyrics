@@ -10,6 +10,8 @@
 var express = require('express'); // Express web server framework
 var request = require('request'); // "Request" library
 var querystring = require('querystring');
+var LocalStorage = require('node-localstorage').LocalStorage;
+var localStorage = new LocalStorage('./scratch');
 var cookieParser = require('cookie-parser');
 var l = require("lyric-get");
 require('dotenv').config()
@@ -92,22 +94,30 @@ app.get('/callback', function(req, res) {
         var access_token = body.access_token,
             refresh_token = body.refresh_token;
 
+            var img_url;
         var options = {
           url: 'https://api.spotify.com/v1/me',
           headers: { 'Authorization': 'Bearer ' + access_token },
           json: true
         };
 
+       
+
         // use the access token to access the Spotify Web API
         request.get(options, function(error, response, body) {
           console.log(body);
+          img_url = body.images;
+          // localStorage.setItem('image',img_url);
+          // console.log(img_url[0].url,img_url[0]['url']);
+           localStorage.setItem("img_url",img_url[0].url);
+           console.log(localStorage.getItem('img_url'));
         });
 
         // we can also pass the token to the browser to make requests from there
         res.redirect('/#' +
           querystring.stringify({
             access_token: access_token,
-            refresh_token: refresh_token
+            refresh_token: refresh_token,
           }));
       } else {
         res.redirect('/#' +
